@@ -14,7 +14,7 @@ jobs:
   scalafmt:
     runs-on: ubuntu-22.04
     steps:
-      - uses: lolgab/scalafmt@main
+      - uses: lolgab/scalafmt@0.0.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 ```
