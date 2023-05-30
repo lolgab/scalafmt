@@ -13,6 +13,14 @@ inputs:
       **.scala
       **.sbt
       **.sc
+  user-name:
+    description: "Git username used to commit the change"
+    required: false
+    default: "github-actions[bot]"
+  user-email:
+    description: "Git email used to commit the change"
+    required: false
+    default: "41898282+github-actions[bot]@users.noreply.github.com"
   repo-token:
     description: "GitHub token to push changes"
     required: false
@@ -43,8 +51,8 @@ runs:
       if: steps.verify-diff.outputs.changed == 'true'
       shell: bash
       run: |
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+        git config --local user.email "${{ inputs.user-email }}"
+        git config --local user.name "${{ inputs.user-name }}"
         git commit -a -m "${{ inputs.commit-message }}"
     - name: Push changes
       if: steps.verify-diff.outputs.changed == 'true'
