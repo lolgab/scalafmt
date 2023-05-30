@@ -1,0 +1,54 @@
+name: "scalafmt"
+description: "Run Scalafmt on Pull Requests diff and push the results"
+author: "lolgab"
+inputs:
+  commit-message:
+    description: "The commit message to use for the scalafmt changes"
+    required: false
+    default: "style: Run Scalafmt"
+  files:
+    description: "Files to run Scalafmt on. Accepts newline separated list of globs"
+    required: false
+    default: |
+      **.scala
+      **.sbt
+      **.sc
+  repo-token:
+    description: "GitHub token to push changes"
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+    - uses: coursier/setup-action@v1
+      with:
+        apps: scalafmt
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v36
+      with:
+        files: ${{ inputs.files }}
+    - name: Run Scalafmt on changed files
+      if: steps.changed-files.outputs.any_changed == 'true'
+      shell: bash
+      run: scalafmt ${{ steps.changed-files.outputs.all_changed_files }}
+    - name: Check if there are any changes
+      id: verify-diff
+      shell: bash
+      run: git diff --quiet . || echo "changed=true" >> $GITHUB_OUTPUT
+    - name: Commit files
+      if: steps.verify-diff.outputs.changed == 'true'
+      shell: bash
+      run: |
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git commit -a -m "${{ inputs.commit-message }}"
+    - name: Push changes
+      if: steps.verify-diff.outputs.changed == 'true'
+      uses: ad-m/github-push-action@v0.6.0
+      with:
+        github_token: ${{ inputs.repo-token }}
+        branch: ${{ github.head_ref }}
