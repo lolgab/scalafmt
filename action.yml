@@ -37,7 +37,7 @@ runs:
         apps: scalafmt:3.8.3
     - name: Get changed files
       id: changed-files
-      uses: tj-actions/changed-files@v44
+      uses: tj-actions/changed-files@v46
       with:
         files: ${{ inputs.files }}
     - name: Run Scalafmt on changed files
@@ -57,7 +57,7 @@ runs:
         git commit -a -m "${{ inputs.commit-message }}"
     - name: Push changes
       if: steps.verify-diff.outputs.changed == 'true'
-      uses: ad-m/github-push-action@v0.6.0
+      uses: ad-m/github-push-action@v0.8.0
       with:
         github_token: ${{ inputs.repo-token }}
         branch: ${{ github.head_ref }}
